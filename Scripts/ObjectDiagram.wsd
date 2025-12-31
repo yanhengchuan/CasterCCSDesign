@@ -1,0 +1,72 @@
+@startuml
+skinparam linetype ortho
+title 连铸机部件对象图（8+4个扇形段）
+
+object "连铸机\ncCasterSingleton" as caster
+object "设备安装器\ncPartsOfCaster" as parts
+
+object "炉前\ncBeforeCaster" as beforeCaster
+object "转台\ncLadleTurret" as ladleTurret
+object "包位1\ncLadleInTurret" as ladle1
+object "包位2\ncLadleInTurret" as ladle2
+object "浸入式水口\ncLadleShroud" as shroud
+
+object "中间包位置\ncTundishPositions" as tundishPos
+object "中间包1\ncTundish" as tundish1
+object "中间包2\ncTundish" as tundish2
+
+object "结晶器\ncMould[0]" as mould
+object "扇形段跟踪\ncStrandTracking[0]" as tracking
+object "铸流\ncStrand" as strand
+
+object "扇形段1\ncSegment" as seg1
+object "扇形段2\ncSegment" as seg2
+object "扇形段3\ncSegment" as seg3
+object "扇形段4\ncSegment" as seg4
+object "扇形段5\ncSegment" as seg5
+object "扇形段6\ncSegment" as seg6
+object "扇形段7\ncSegment" as seg7
+object "扇形段8\ncSegment" as seg8
+object "扇形段9\ncSegment" as seg9
+object "扇形段10\ncSegment" as seg10
+object "扇形段11\ncSegment" as seg11
+object "扇形段12\ncSegment" as seg12
+
+object "铸流导向装置\ncStrandGuideCollect[0]" as sgc
+object "夹送辊\ncApproachRoller[0]" as approach
+object "切割机\ncShearCutter[0]" as cutter
+
+caster *-- parts
+caster *-- beforeCaster
+caster *-- ladleTurret
+ladleTurret o-- ladle1
+ladleTurret o-- ladle2
+ladleTurret o-- shroud
+
+caster *-- tundishPos
+tundishPos o-- tundish1
+tundishPos o-- tundish2
+
+caster *-- mould
+caster *-- tracking
+tracking *-- strand
+tracking o-- seg1
+tracking o-- seg2
+tracking o-- seg3
+tracking o-- seg4
+tracking o-- seg5
+tracking o-- seg6
+tracking o-- seg7
+tracking o-- seg8
+
+tracking o-- sgc
+
+caster *-- approach
+caster *-- cutter
+
+ladleTurret --> tundishPos : 浇包→中间包
+tundishPos --> mould : 中间包→结晶器
+mould --> tracking : 结晶器→二冷扇形段
+tracking --> approach : 扇形段→夹送辊
+approach --> cutter : 夹送辊→切割机
+@enduml

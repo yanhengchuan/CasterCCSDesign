@@ -1,0 +1,45 @@
+@startuml
+title 连铸过程控制系统（CCS）总体组件图 - 概要设计
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor #EEF2F6
+  BorderColor #7B7B7B
+  FontSize 12
+}
+left to right direction
+' ======================
+' 外部系统边界
+' ======================
+actor "操作员 (Operator)" as operator
+actor "MES系统" as MES
+node "PLC / Level1" as L1
+' ======================
+' CCS 系统边界
+' ======================
+node "连铸过程控制系统 (CCS)" as ccs {
+  
+  [计划调度模块\nScheduling & Planning] as Planning
+  [执行控制模块\nExecution Control] as Execution
+  [过程控制模块\nProcess Control] as Process
+  [通信模块\nCommunication Interface] as Comm
+  [数据服务模块\nData Service] as Data
+  [操作与监控界面\nHMI / Operator Console] as HMI
+}
+' ======================
+' 外部交互
+' ======================
+MES --> Comm : 板坯计划\n炉次计划下发
+Comm --> MES : 状态反馈 / 实绩数据
+operator --> HMI : 操作指令 / 监控信息
+HMI --> Execution : 作业启动 / 状态查询
+L1 <--> Process : 实时信号采集 / 控制指令
+' ======================
+' 内部模块交互
+' ======================
+Comm --> Planning : 传递计划数据
+Planning --> Execution : 生成作业指令
+Execution --> Process : 下发工艺控制目标
+Process --> Data : 采样 / 实时数据上报
+Data --> Execution : 提供实时信息支撑
+Data --> HMI : 提供显示 / 报表数据
+@enduml

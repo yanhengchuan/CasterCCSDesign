@@ -1,0 +1,38 @@
+@startuml
+actor Operator
+participant PLC
+participant Handler as "CCS.EventHandler"
+participant Weight as "CCS.WeightService"
+participant Ladle as "CCS.LadleService"
+participant Plan as "CCS.PlanService"
+participant Parameter as "CCS.ProcessParamService"
+database DB as "DB"
+
+Operator -> PLC : 打开钢包信号
+PLC -> Handler : Send(LadleOpen)
+
+Handler -> Weight : GetGrossWeight()
+Weight --> Handler : GrossWeight
+
+Handler -> Ladle : GetTareWeight()
+Ladle --> Handler : Tare / null
+
+Handler -> Handler : 计算净重
+
+Handler -> Ladle : CheckReturnHeat()
+Ladle --> Handler : isReturn
+
+Handler -> Plan : CheckPlanExist(炉次)
+Plan --> Handler : Exists / NotExists
+
+alt 存在三级计划
+    Handler -> Parameter : GetProcessParams(钢种)
+    Parameter --> Handler : Params
+else 不存在计划
+    Handler -> Plan : NotifyNoPlan()
+    Handler -> Parameter : UseDefaultOrGroup()
+end
+
+Handler -> DB : Insert(LadleOpenEvent)
+DB --> Handler : OK
+@enduml

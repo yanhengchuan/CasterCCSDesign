@@ -1,0 +1,133 @@
+@startuml
+title 连铸二级系统（CCS）部署图 - CS 架构
+
+skinparam nodeStyle rounded
+skinparam componentStyle rectangle
+
+' ===============================
+' 物理网络区域
+' ===============================
+node "厂区网络结构（Network Zones）" {
+  
+  frame "基础自动化控制网络（Level 1 / PLC Zone）" {
+    node "PLC 区域" {
+      node "连铸PLC\n（S7-400/1500）" as PLC_Main {
+        artifact "I/O 信号\n(平台，传动，仪表，TCS)" 
+      }
+node "机电一体化PLC" as PLC_Tundish
+      node "远程站"
+      node "操作盘"
+    }
+  }
+
+frame "工厂信息网络（Level 3 / MES Zone）" {
+    node "钢铁 MES 系统" as MES {
+      component "板坯计划服务"
+      component "炉次计划服务"
+      component "工艺参数管理"
+    }
+  }
+
+frame "化验室" {
+    node "快分系统" as LAB{
+      component "钢水样"
+      component "钢样"
+    }
+  }
+
+frame "仓储物流" {
+    node "板坯库" as WMES{
+      component "板坯处理"
+      component "板坯库"
+    }
+  }
+
+
+' =========================
+' 服务器节点
+' =========================
+frame "过程控制网络（Level 2 / CCS Zone）" {
+node "CCS 服务器\n(Windows Server)" as Server {
+
+  component "MS .NET Framework 4.5\nRuntime" as NET
+
+  component "CORBA 消息中间件" as CORBA
+
+  component "Oracle Database\n(过程 / 实绩库)" as ORADB
+
+  component "comm.exe\n通信模块" as COMM
+  component "pps.exe\n计划调度模块" as PPS
+  component "procctl.exe\n执行控制模块" as PROC
+  component "mdb.exe\n数据管理模块" as MDB
+
+  component "xas进程管理\n(启停 / 日志)" as XAS
+
+  COMM --> CORBA
+  PPS --> CORBA
+  PROC --> CORBA
+  MDB --> CORBA
+
+  MDB --> ORADB : SQL
+  COMM --> ORADB
+  PPS --> ORADB
+  PROC --> ORADB
+
+  XAS ..> COMM : 管理
+  XAS ..> PPS
+  XAS ..> PROC
+  XAS ..> MDB
+}
+node "OPC 通信服务器（OPC DA/UA）" as OPC {
+      component "PLC 通道配置"
+    }
+
+
+' =========================
+' 操作员客户端 1
+' =========================
+node "操作员客户端 #1\n(Windows)" as Client1 {
+  component "CasterHMI.exe\n操作员界面" as HMI1
+  component "Oracle Client" as ORA_C1
+  component "CORBA Middleware" as CORBA_C1
+  component "MS .NET Framework 4.5" as NET_C1
+}
+
+' =========================
+' 操作员客户端 2
+' =========================
+node "操作员客户端 #2\n(Windows)" as Client2 {
+  component "CasterHMI.exe\n操作员界面" as HMI2
+  component "Oracle Client" as ORA_C2
+  component "CORBA Middleware" as CORBA_C2
+  component "MS .NET Framework 4.5" as NET_C2
+}
+
+' =========================
+' 工艺工程师站
+' =========================
+node "工艺工程师站\n(Windows)" as Engineer {
+  component "CasterHMI.exe\n工艺配置 / 参数维护" as HMI3
+  component "Oracle Client" as ORA_E
+  component "CORBA Middleware" as CORBA_E
+  component "MS .NET Framework 4.5" as NET_E
+}
+
+' =========================
+' 网络与通信
+' =========================
+HMI1 --> CORBA : CORBA 接口
+HMI2 --> CORBA
+HMI3 --> CORBA
+
+HMI1 --> ORADB : 查询 / 配置
+HMI2 --> ORADB
+HMI3 --> ORADB
+}
+
+' PLC connections
+PLC_Main <--> OPC : S7 ProfiBus
+PLC_Tundish <--> OPC : TCP / Profinet
+
+
+Server<--> MES : 板坯计划 / 炉次计划 / 实绩上传
+@enduml

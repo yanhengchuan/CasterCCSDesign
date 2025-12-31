@@ -1,0 +1,68 @@
+@startuml
+title 连铸CCS 系统 - 包图
+skinparam packageStyle rectangle
+skinparam rectangle {
+  BackgroundColor #F8FAFC
+  BorderColor #666
+  FontSize 12
+}
+skinparam class {
+  BackgroundColor White
+  ArrowColor #333
+}
+left to right direction
+' ======================
+' 表示层
+' ======================
+package "表示层\n(Presentation Layer)" {
+  class HMIController
+  class OperationPanel
+}
+' ======================
+' 业务逻辑层
+' ======================
+package "业务逻辑层\n(Business Logic Layer)" {
+  class PlanningManager
+  class HeatScheduler
+  class ExecutionManager
+  class OrderTracker
+}
+' ======================
+' 过程控制层
+' ======================
+package "过程控制层\n(Process Control Layer)" {
+  class CastingManager
+  class MoldControl
+  class SecondaryCooling
+  class SpeedController
+}
+' ======================
+' 通信与数据层
+' ======================
+package "通信与数据层\n(Communication & Data Layer)" {
+  class DataService
+  class CommunicationManager
+  class DBAccess
+}
+' ======================
+' 外部接口层
+' ======================
+package "外部接口层\n(Integration Layer)" {
+  class MESAdapter
+  class PLCAdapter
+}
+' ======================
+' 依赖关系
+' ======================
+HMIController --> OperationPanel : 操作指令/显示
+OperationPanel --> ExecutionManager : 调用执行逻辑
+ExecutionManager --> PlanningManager : 获取生产计划
+ExecutionManager --> CastingManager : 控制连铸作业
+CastingManager --> MoldControl : 控制结晶器
+CastingManager --> SecondaryCooling : 调节二冷水
+CastingManager --> SpeedController : 调整拉速
+ExecutionManager --> DataService : 访问数据
+DataService --> DBAccess : 读写数据库
+CommunicationManager --> MESAdapter : 接口封装
+CastingManager --> PLCAdapter : 工艺下发
+@enduml
